@@ -1,27 +1,7 @@
 var serand = require('serand');
 var navigation = require('navigation');
 
-var links = {
-    home: {
-        url: '/',
-        title: 'accounts'
-    },
-    menu: [{
-        url: 'https://autos.serandives.com',
-        title: 'Autos'
-    }, {
-        url: 'https://hotels.serandives.com',
-        title: 'Hotels'
-    }, {
-        url: 'https://jobs.serandives.com',
-        title: 'Jobs'
-    }, {
-        url: 'https://states.serandives.com',
-        title: 'Real States'
-    }]
-};
-
-var render = function () {
+var render = function (done) {
     $.ajax({
         url: '/apis/v/menus/0',
         headers: {
@@ -29,22 +9,28 @@ var render = function () {
         },
         dataType: 'json',
         success: function (data) {
-            serand.emit('navigation', 'render', data);
+            done(false, data);
         },
         error: function () {
-
+            done(true);
         }
     });
 };
 
 module.exports = function (sandbox, fn, options) {
-    navigation(sandbox, fn, links);
+    render(function (err, links) {
+        navigation(sandbox, fn, links);
+    });
 };
 
-serand.on('user', 'logged in', function (usr) {
-    render();
+serand.on('user', 'logged in', function () {
+    render(function (err, links) {
+        serand.emit('navigation', 'render', links);
+    });
 });
 
-serand.on('user', 'logged out', function (usr) {
-    render();
+serand.on('user', 'logged out', function () {
+    render(function (err, links) {
+        serand.emit('navigation', 'render', links);
+    });
 });
