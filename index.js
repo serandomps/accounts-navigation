@@ -1,6 +1,10 @@
 var serand = require('serand');
 var navigation = require('navigation');
 
+var context;
+
+var ready = false;
+
 var render = function (done) {
     $.ajax({
         url: '/apis/v/menus/0',
@@ -8,29 +12,48 @@ var render = function (done) {
             'x-host': 'accounts.serandives.com'
         },
         dataType: 'json',
-        success: function (data) {
-            done(false, data);
+        success: function (links) {
+            done(false, links);
         },
         error: function () {
-            done(true);
+            done(true, {});
         }
     });
 };
 
 module.exports = function (sandbox, fn, options) {
-    render(function (err, links) {
+    context = {
+        sandbox: sandbox,
+        fn: fn
+    };
+    if (!ready) {
+        return;
+    }
+    render(function(err, links) {
         navigation(sandbox, fn, links);
     });
 };
 
-serand.on('user', 'logged in', function () {
-    render(function (err, links) {
+serand.on('user', 'ready', function (user) {
+    ready = true;
+    if (!context) {
+        return;
+    }
+    render(function(err, links) {
+        navigation(context.sandbox, context.fn, links);
+    });
+});
+
+/*serand.on('user', 'logged in', function () {
+    console.log('----------------------------2');
+    render(function(err, links) {
         serand.emit('navigation', 'render', links);
     });
 });
 
 serand.on('user', 'logged out', function () {
-    render(function (err, links) {
+    console.log('----------------------------3');
+    render(function(err, links) {
         serand.emit('navigation', 'render', links);
     });
-});
+});*/
