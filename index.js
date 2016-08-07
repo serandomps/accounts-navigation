@@ -7,10 +7,7 @@ var ready = false;
 
 var render = function (done) {
     $.ajax({
-        url: '/apis/v/menus/0',
-        headers: {
-            'X-Host': 'accounts.serandives.com'
-        },
+        url: 'https://accounts.serandives.com/apis/v/menus/0',
         dataType: 'json',
         success: function (links) {
             done(false, links);
