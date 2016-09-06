@@ -1,5 +1,6 @@
 var serand = require('serand');
 var navigation = require('navigation');
+var utils = require('utils');
 
 var context;
 
@@ -7,7 +8,7 @@ var ready = false;
 
 var render = function (done) {
     $.ajax({
-        url: 'https://accounts.serandives.com/apis/v/menus/0',
+        url: utils.resolve('accounts://apis/v/menus/0'),
         dataType: 'json',
         success: function (links) {
             done(false, links);
