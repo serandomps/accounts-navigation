@@ -6,9 +6,9 @@ var context;
 
 var ready = false;
 
-var render = function (done) {
+var render = function (id, done) {
     $.ajax({
-        url: utils.resolve('accounts://apis/v/menus/0'),
+        url: utils.resolve('accounts://apis/v/menus/' + id),
         dataType: 'json',
         success: function (links) {
             done(null, links);
@@ -19,16 +19,32 @@ var render = function (done) {
     });
 };
 
+var filter = function (options, user, links) {
+    if (user) {
+        return links;
+    }
+    if (options.signup) {
+        links.signin = {url: '/signin', title: 'Sign in'};
+    }
+    if (options.signin) {
+        links.signup = {url: '/signup', title: 'Sign up'};
+    }
+    return links;
+};
+
 module.exports = function (sandbox, options, done) {
+    options = options || {};
     context = {
         sandbox: sandbox,
+        options: options,
         done: done
     };
     if (!ready) {
         return;
     }
-    render(function(err, links) {
-        navigation(sandbox, links, done);
+    var id = options.id || 0;
+    render(id, function(err, links) {
+        navigation(sandbox, filter(options, null, links), done);
     });
 };
 
@@ -37,8 +53,8 @@ serand.on('user', 'ready', function (user) {
     if (!context) {
         return;
     }
-    render(function(err, links) {
-        navigation(context.sandbox, links, context.done);
+    render(0, function(err, links) {
+        navigation(context.sandbox, filter(context.options, user, links), context.done);
     });
 });
 
