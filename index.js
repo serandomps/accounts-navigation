@@ -32,7 +32,8 @@ var filter = function (options, user, links) {
     return links;
 };
 
-module.exports = function (ctx, sandbox, options, done) {
+module.exports = function (ctx, container, options, done) {
+    var sandbox = container.sandbox;
     options = options || {};
     context = {
         ctx: ctx,
@@ -48,7 +49,7 @@ module.exports = function (ctx, sandbox, options, done) {
         if (err) {
             return done(err);
         }
-        navigation(ctx, sandbox, filter(options, null, links), done);
+        navigation(ctx, container, filter(options, null, links), done);
     });
 };
 
